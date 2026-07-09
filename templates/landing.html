@@ -2,6 +2,79 @@
 
 {% block title %}Spendly — Track Every Rupee{% endblock %}
 
+{% block head %}
+{{ super() }}
+<style>
+    .hiw-modal[hidden] { display: none !important; }
+    .hiw-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+    }
+    .hiw-modal__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 12, 18, 0.72);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+    .hiw-modal__dialog {
+        width: min(960px, 100%);
+        background: #0f1424;
+        color: #fff;
+        border-radius: 16px;
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .hiw-modal__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .hiw-modal__title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+    }
+    .hiw-modal__close {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font-size: 22px;
+        line-height: 1;
+        padding: 6px 8px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+    .hiw-modal__close:hover { background: rgba(255, 255, 255, 0.10); }
+    .hiw-modal__body { padding: 16px; }
+    .hiw-modal__video {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+    }
+    .hiw-modal__video iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <section class="hero">
@@ -107,6 +180,89 @@
     </div>
 </section>
 
+<div id="howItWorksModal" class="hiw-modal" hidden>
+    <div class="hiw-modal__backdrop" role="presentation">
+        <div class="hiw-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="hiw-modal-title">
+            <div class="hiw-modal__header">
+                <h2 id="hiw-modal-title" class="hiw-modal__title">See how it works</h2>
+                <button type="button" class="hiw-modal__close" aria-label="Close video modal">&times;</button>
+            </div>
+            <div class="hiw-modal__body">
+                <div id="hiwVideoMount" class="hiw-modal__video"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    (function () {
+        function onReady(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        onReady(function () {
+            var trigger = document.querySelector('a.hero-btn.hero-btn-secondary[href="#how-it-works"]');
+            var modal = document.getElementById('howItWorksModal');
+            if (!trigger || !modal) return;
+
+            var backdrop = modal.querySelector('.hiw-modal__backdrop');
+            var closeBtn = modal.querySelector('.hiw-modal__close');
+            var videoMount = document.getElementById('hiwVideoMount');
+            var youtubeEmbedBase = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+
+            function mountVideo() {
+                if (!videoMount) return;
+                videoMount.textContent = '';
+                var iframe = document.createElement('iframe');
+                iframe.src = youtubeEmbedBase + '?autoplay=1&rel=0';
+                iframe.title = 'How it works video';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+                iframe.allowFullscreen = true;
+                videoMount.appendChild(iframe);
+            }
+
+            function unmountVideo() {
+                if (!videoMount) return;
+                videoMount.textContent = '';
+            }
+
+            function openModal() {
+                modal.hidden = false;
+                mountVideo();
+                if (closeBtn) closeBtn.focus();
+            }
+
+            function closeModal() {
+                if (modal.hidden) return;
+                modal.hidden = true;
+                unmountVideo();
+            }
+
+            trigger.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation(); // prevents the existing inline onclick from firing
+                openModal();
+            }, true);
+
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+            if (backdrop) {
+                backdrop.addEventListener('click', function (e) {
+                    if (e.target === backdrop) closeModal();
+                });
+            }
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !modal.hidden) closeModal();
+            });
+        });
+    })();
+</script>
 {% endblock %}
 
 {% block footer %}<footer class="footer"><div class="footer-inner"><span class="brand-icon">◈</span><span class="footer-name">Spendly</span><p class="footer-copy">Track every rupee. Own your finances.</p><a href="/terms" class="footer-link">Terms and Conditions</a><a href="/privacy" class="footer-link">Privacy Policy</a></div></footer>{% endblock %}
