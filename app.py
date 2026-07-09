@@ -1,3 +1,6 @@
+import argparse
+import os
+
 from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -6,6 +9,11 @@ app = Flask(__name__)
 # ------------------------------------------------------------------ #
 # Routes                                                              #
 # ------------------------------------------------------------------ #
+
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
 
 @app.route("/")
 def landing():
@@ -52,4 +60,9 @@ def delete_expense(id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", "5001")))
+    args = parser.parse_args()
+
+    app.run(debug=True, host=args.host, port=args.port)
