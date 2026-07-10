@@ -28,7 +28,7 @@ Read these files before writing the spec:
 - CLAUDE.md -- roadmap, conventions, schema
 - app.py -- existing routes and structure 
 - database/db.py -- existing schema and functions
-- All files in .claude/specs/ - avoid duplicating existing spechs 
+- All files in .claude/spec/ - avoid duplicating existing spechs 
 
 Check CLAUDE.md to confirm the requested step is not already
 Marked complete. If it is, warn the user and stop 
