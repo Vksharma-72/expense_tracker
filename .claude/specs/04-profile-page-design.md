@@ -1,54 +1,54 @@
-# Spec: Profile Page Design
+# Spec: Profile Page
 
-## Overview 
-The profile page is the first user-facing dashboard after login. It shows a greeting with the current user's name, their email address, and links to core actions (expenses list, logout). This step focuses on **design only** — layout, styling, markup — no backend logic yet. The route will remain a stub that redirects to landing until Step 8 adds real rendering; for now we render `profile.html` directly as the spec is about the template and CSS.
+## Overview
+This feature replaces the `/profile` stub with a fully designed profile page showing static, hardcoded data. The goal is to establish the complete UI layout — user info card, transaction history table, summary stats, and category breakdown — before any real database queries are wired up in Step 5. Building the UI first lets the team validate the design in isolation and ensures the templates are ready for the backend-connection step.
 
 ## Depends on
-- Step 1: Registration (user table exists)
-- Step 2: Login & Logout (session-based auth already in place)
-- Step 3: Landing page (base layout conventions established)
+- Step 1: Database setup (schema must exist)
+- Step 2: Registration (user accounts must be creatable)
+- Step 3: Login + Logout (session must be set; `/profile` must be a protected route)
 
-# Routes 
-| METHOD | Path | Description | Access |
-|---|---|---|---|
-| GET | /profile | Renders the profile page template | logged-in only |
+## Routes
+- GET /profile — render the profile page — logged-in only (redirect to /login if not authenticated)
 
-The route is defined in `app.py` but remains a stub until Step 8. The spec here covers the template and CSS that will be rendered once that route is wired up.
+## Database changes
+No database changes. The existing `users` and `expenses` tables are sufficient.
 
-# Database changes 
-No database changes. The profile page reads user data from the existing `users` table via the `current_user` context variable already injected by `inject_current_user()` in `app.py`.
+## Templates
+- Create: `templates/profile.html` — full profile page extending `base.html`; contains four sections:
+  1. **User info card** — avatar initials, name, email, member-since date (all hardcoded)
+  2. **Summary stats row** — total spent, number of transactions, top category (hardcoded)
+  3. **Transaction history table** — list of recent expenses with date, description, category badge, amount (hardcoded rows)
+  4. **Category breakdown** — per-category totals displayed as a simple list or progress-bar rows (hardcoded)
 
-## Templates 
-- **Creates**:
-  - `templates/profile.html` — extends `base.html`, renders the profile view with greeting, email display, and action links.
-- **Modify**: None at this stage.
+## Files to change
+- `app.py` — replace the `/profile` stub with a real view function that:
+  - Redirects unauthenticated users to `/login`
+  - Passes hardcoded context variables to `profile.html`
 
-# Files to change 
-| File | Change |
-|---|---|
-| `app.py` (Step 8) | Wire `/profile` route to render template — not done in this step; stub remains. |
+## Files to create
+- `templates/profile.html`
 
-# Files to create 
-| File | Purpose |
-|---|---|
-| `templates/profile.html` | Profile page markup extending base layout. |
-| `static/css/profile.css` | Page-specific styles (CSS variables only). |
-
-# New dependencies 
+## New dependencies
 No new dependencies.
 
-## Rule for Implementation 
-- No SQLAlchemy or ORMs — SQLite raw queries only.
-- Passwords hashed with werkzeug (`generate_password_hash`).
-- Use CSS variables — never hardcoded hex values.
-- All templates extend `base.html`.
-- Every internal link uses `url_for()`.
-- Parameterised queries only (no f-strings in SQL).
-- The profile route must redirect to `/login` if the user is not authenticated; this logic lives in `app.py`, not the template.
+## Rules for implementation
+- No SQLAlchemy or ORMs — use raw sqlite3 via `get_db()` if any DB call is ever needed
+- Parameterised queries only — never string-format SQL
+- Passwords hashed with werkzeug (no changes to auth in this step)
+- Use CSS variables — never hardcode hex values
+- All templates extend `base.html`
+- No inline styles
+- Authentication guard: check `session.get("user_id")`; if absent, `redirect(url_for("login"))`
+- All data passed to the template must be hardcoded Python dicts/lists in `app.py` — no DB queries in this step
+- Category badges must use a CSS class, not inline colour styles
 
-# Definition of Done 
-- [ ] `templates/profile.html` exists and extends `base.html`.
-- [ ] `static/css/profile.css` exists with CSS variables for all colors, no hardcoded hex values.
-- [ ] The profile page shows: user's name (from session/user context), email address, a "My Expenses" link pointing to `/expenses`, and a "Logout" link pointing to `/logout`.
-- [ ] The page renders without errors when accessed with a valid authenticated session.
-- [ ] The route returns 401 or redirects to login when `current_user` is None (handled in Step 8).
+## Definition of done
+- [ ] Visiting `/profile` without being logged in redirects to `/login`
+- [ ] Visiting `/profile` while logged in returns HTTP 200
+- [ ] The page displays a user info card with a name and email
+- [ ] The page displays at least three summary stat values (e.g. total spent, transaction count, top category)
+- [ ] The page displays a transaction history table with at least three hardcoded rows
+- [ ] The page displays a category breakdown section with at least three categories
+- [ ] The navbar shows the logged-in state (username + logout link)
+- [ ] No hex colour values appear in `profile.html` — only CSS variables

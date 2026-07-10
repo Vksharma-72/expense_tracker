@@ -1,53 +1,51 @@
 # Spec: Login and Logout
 
 ## Overview
-This step gives Spendly its first authenticated session. Registration (Step 2) only creates an account — it never logs the user in. This step wires `/login` to actually verify credentials and start a session, and implements `/logout` to end it. It also updates the shared nav in `base.html` so it reflects whether a visitor is signed in. This is the foundation every later "logged-in only" route (`/profile`, `/expenses/*`) depends on.
+This step implements user authentication, allowing users to sign in with their email and password, and sign out to end their session. Login uses Flask sessions and password verification via werkzeug. This builds on the registration step to complete the authentication flow, enabling access control for expense tracking features in later steps.
 
 ## Depends on
-- Step 01 — Database Setup (`users` table, `get_db()` with FK pragma)
-- Step 02 — Registration (`get_user_by_email()`, `create_user()`, existing `register.html` pattern, `login.html` already has a POST form wired to `/login`)
+- Step 02: User registration (users table with password_hash)
 
 ## Routes
-- `GET /login` — render login form — public (already implemented, no change to the GET path)
-- `POST /login` — verify email/password, start session on success, re-render form with error on failure — public
-- `GET /logout` — clear session, redirect to landing page — logged-in (safe to call when logged out too; just redirects)
+- `POST /login` — authenticate user with email and password, set session, redirect to profile — public
+- `GET /logout` — clear session and redirect to landing — logged-in users
 
 ## Database changes
-No database changes. `users` table (from Step 01) already has `email` and `password_hash` columns, which is all login needs. `get_user_by_email()` already exists in `database/db.py` and is reused as-is.
+No new tables or columns. Add one helper function to `database/db.py`:
+- `get_user_by_id(user_id)` — fetch user by id
 
 ## Templates
-- Creates: none — logout has no page, it redirects immediately after clearing the session
-- Modify:
-  - `templates/login.html` — no structural change needed; already posts to `/login` and already has an `{% if error %}` block for displaying failures
-  - `templates/base.html` — nav must become session-aware: show "Sign in" / "Get started" when logged out (current behavior), and show the user's name plus a "Log out" link (`url_for('logout')`) when `session.get('user_id')` is set
+- **Modify:** `base.html` — add `{% if session.get('user_id') %}` conditional to show logout link in nav when logged in, hide "Sign in" and "Get started" links
+- **Modify:** `login.html` — handle error messages (already has structure)
+- **Create:** None
 
 ## Files to change
-- `app.py` — set `app.secret_key` (from an env var, e.g. `os.environ.get("SECRET_KEY", "dev-secret-key")`); change `/login` to `methods=["GET", "POST"]` and implement POST handling; replace the `/logout` stub with real session-clearing logic
-- `database/db.py` — add `get_user_by_id(user_id)` helper (parameterized SELECT by `id`), needed so later steps (`/profile`) can load the logged-in user from `session["user_id"]`
-- `templates/base.html` — add session-aware nav conditional
+- `app.py` — implement POST /login and GET /logout routes, configure Flask sessions
+- `database/db.py` — add `get_user_by_id()` helper
+- `templates/base.html` — update navbar to show/hide links based on session state
 
 ## Files to create
 None.
 
 ## New dependencies
-No new dependencies. Sessions use Flask's built-in `session` object (signed cookies via `secret_key`) — no `flask-login` or similar package.
+No new dependencies needed. werkzeug (for password verification) and Flask sessions are already available.
 
-## Rule for Implementation
-- No SQLAlchemy or ORMs
-- Parameterized queries only
-- Passwords hashed with werkzeug — verify with `werkzeug.security.check_password_hash`, never compare plaintext
-- Use CSS variables — never hardcode hex values (reuse existing `--danger`/`--danger-light` classes already used by `.auth-error` for login failures — no new CSS needed)
-- All templates extend `base.html`
-- Store only `session["user_id"]` in the session — never store the password hash or full user row in the session
-- `/logout` must not use a raw string return — it must clear the session and issue a redirect (not render a stub string)
-- Do not implement `/profile` or any `/expenses/*` route in this step even though they will consume `session["user_id"]` — those remain stubs per CLAUDE.md until their own steps
+## Rules for implementation
+- No SQLAlchemy or ORMs — use raw SQL only
+- Parameterized queries only (`?` placeholders) — never f-strings in SQL
+- Password verification with `werkzeug.security.check_password_hash`
+- Set app.secret_key from environment or a secure default
+- Session cookie should not be HttpOnly for this step (allow JS access if needed later)
+- Use Flask's `session` object for user tracking
+- Redirect (not render) after successful login — no GET /login rendering with user already logged in
+- All templates must extend `base.html`
 
-## Definition of Done
-- [ ] Visiting `/login` and submitting the seeded demo account (`demo@spendly.com` / `demo123`) redirects successfully and the nav now shows a logged-in state instead of "Sign in"/"Get started"
-- [ ] Submitting `/login` with a wrong password re-renders `login.html` with an error message and does not create a session
-- [ ] Submitting `/login` with an email that doesn't exist re-renders `login.html` with an error message (same generic message as wrong password, to avoid leaking which emails are registered)
-- [ ] After logging in, visiting `/logout` clears the session and redirects to `/`, and the nav reverts to the logged-out state
-- [ ] Visiting `/logout` while already logged out does not error — it just redirects to `/`
-- [ ] Refreshing the page after login keeps the user logged in (session persists across requests, not just the redirect)
-- [ ] `app.secret_key` is set and sessions survive a server restart only if the key is stable (not regenerated randomly on each run)
-- [ ] No raw string is returned from `/logout` — confirmed by viewing page source after hitting the route
+## Definition of done
+- [ ] User can POST email and password to `/login`
+- [ ] Invalid email shows error message without redirecting
+- [ ] Invalid password shows error message without redirecting
+- [ ] Valid credentials set `session['user_id']` and redirect to `/profile` (step 4 stub is ok for now)
+- [ ] GET `/logout` clears the session and redirects to `/`
+- [ ] Navbar shows "Sign out" link when logged in, hides "Sign in" and "Get started"
+- [ ] Navbar shows "Sign in" and "Get started" when logged out
+- [ ] Logout link in navbar redirects to `/logout` and clears session
