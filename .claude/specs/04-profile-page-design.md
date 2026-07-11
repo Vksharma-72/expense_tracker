@@ -10,6 +10,7 @@ This feature replaces the `/profile` stub with a fully designed profile page sho
 
 ## Routes
 - GET /profile — render the profile page — logged-in only (redirect to /login if not authenticated)
+- POST /login updated — redirect to /profile instead of landing page after successful login
 
 ## Database changes
 No database changes. The existing `users` and `expenses` tables are sufficient.
@@ -20,11 +21,15 @@ No database changes. The existing `users` and `expenses` tables are sufficient.
   2. **Summary stats row** — total spent, number of transactions, top category (hardcoded)
   3. **Transaction history table** — list of recent expenses with date, description, category badge, amount (hardcoded rows)
   4. **Category breakdown** — per-category totals displayed as a simple list or progress-bar rows (hardcoded)
+- Modify: `templates/base.html` — make `.nav-user` (username) clickable to navigate to `/profile`
 
 ## Files to change
 - `app.py` — replace the `/profile` stub with a real view function that:
   - Redirects unauthenticated users to `/login`
   - Passes hardcoded context variables to `profile.html`
+  - Update POST `/login` to redirect to `/profile` instead of `/landing`
+- `templates/base.html` — change `.nav-user` from `<span>` to `<a>` linking to `/profile`
+- `static/css/style.css` — add `.nav-user` styling (bold, darker color, hover effect)
 
 ## Files to create
 - `templates/profile.html`
@@ -45,10 +50,12 @@ No new dependencies.
 
 ## Definition of done
 - [ ] Visiting `/profile` without being logged in redirects to `/login`
+- [ ] After successful login, user is redirected to `/profile` instead of landing page
+- [ ] Clicking the username in the navbar navigates to `/profile`
 - [ ] Visiting `/profile` while logged in returns HTTP 200
 - [ ] The page displays a user info card with a name and email
 - [ ] The page displays at least three summary stat values (e.g. total spent, transaction count, top category)
 - [ ] The page displays a transaction history table with at least three hardcoded rows
 - [ ] The page displays a category breakdown section with at least three categories
-- [ ] The navbar shows the logged-in state (username + logout link)
+- [ ] The navbar shows the logged-in state (bold username as clickable link + logout link)
 - [ ] No hex colour values appear in `profile.html` — only CSS variables
