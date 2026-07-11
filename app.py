@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from database.db import get_db, init_db, seed_db, get_user_by_email, get_user_by_id, create_user, get_user_expenses, get_expense_summary, get_category_breakdown
+from database.db import get_db, init_db, seed_db, get_user_by_email, get_user_by_id, create_user, get_user_expenses, get_expense_summary, get_category_breakdown, get_user_expenses_filtered, get_expense_summary_filtered, get_category_breakdown_filtered
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
@@ -124,16 +124,63 @@ def get_category_breakdown_context(user_id):
     return {"categories": breakdown}
 
 
+def validate_date(date_str):
+    if not date_str:
+        return None
+    try:
+        datetime.strptime(date_str, "%Y-%m-%d")
+        return date_str
+    except ValueError:
+        return None
+
+
 @app.route("/profile")
 def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
     user_id = session["user_id"]
-    ctx = {}
-    ctx.update(get_transaction_history_context(user_id))
-    ctx.update(get_summary_stats_context(user_id))
-    ctx.update(get_category_breakdown_context(user_id))
+    date_from = request.args.get("date_from", "").strip()
+    date_to = request.args.get("date_to", "").strip()
+
+    date_from = validate_date(date_from) if date_from else None
+    date_to = validate_date(date_to) if date_to else None
+
+    if date_from and date_to and date_from > date_to:
+        date_from = None
+        date_to = None
+
+    transactions = get_user_expenses_filtered(user_id, date_from, date_to)
+    summary = get_expense_summary_filtered(user_id, date_from, date_to)
+    categories = get_category_breakdown_filtered(user_id, date_from, date_to)
+
+    user = get_user_by_id(user_id)
+    if user and user["created_at"]:
+        created = datetime.strptime(user["created_at"], "%Y-%m-%d %H:%M:%S")
+        member_since = created.strftime("%B %Y")
+    else:
+        member_since = "Unknown"
+
+    filter_active = date_from is not None or date_to is not None
+    if filter_active:
+        from_str = datetime.strptime(date_from, "%Y-%m-%d").strftime("%b %d, %Y") if date_from else "start"
+        to_str = datetime.strptime(date_to, "%Y-%m-%d").strftime("%b %d, %Y") if date_to else "end"
+        filter_display = f"Showing expenses from {from_str} to {to_str}"
+    else:
+        filter_display = "Showing all expenses"
+
+    ctx = {
+        "transactions": transactions,
+        "total_spent": summary["total_spent"],
+        "transaction_count": summary["transaction_count"],
+        "top_category": summary["top_category"],
+        "categories": categories,
+        "member_since": member_since,
+        "date_from": date_from,
+        "date_to": date_to,
+        "filter_active": filter_active,
+        "filter_display": filter_display,
+    }
     return render_template("profile.html", **ctx)
 
 
