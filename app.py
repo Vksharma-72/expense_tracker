@@ -72,7 +72,7 @@ def login():
         return render_template("login.html", error="Invalid email or password.")
 
     session["user_id"] = user["id"]
-    return redirect(url_for("landing"))
+    return redirect(url_for("profile"))
 
 
 @app.context_processor
@@ -93,7 +93,33 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    ctx = {
+        "member_since": "July 2026",
+        "total_spent": 430.64,
+        "transaction_count": 8,
+        "top_category": "Shopping",
+        "transactions": [
+            {"date": "2026-07-09", "description": "Movie night", "category": "Entertainment", "amount": 60.00},
+            {"date": "2026-07-07", "description": "New shoes", "category": "Shopping", "amount": 150.00},
+            {"date": "2026-06-29", "description": "Pharmacy", "category": "Health", "amount": 25.00},
+            {"date": "2026-06-27", "description": "Electricity bill", "category": "Bills", "amount": 89.99},
+            {"date": "2026-06-25", "description": "Bus pass", "category": "Transport", "amount": 12.00},
+            {"date": "2026-06-23", "description": "Groceries", "category": "Food", "amount": 45.50},
+        ],
+        "categories": {
+            "Food": 45.50,
+            "Transport": 12.00,
+            "Bills": 89.99,
+            "Health": 25.00,
+            "Entertainment": 60.00,
+            "Shopping": 150.00,
+            "Other": 15.75,
+        },
+    }
+    return render_template("profile.html", **ctx)
 
 
 @app.route("/expenses/add")
