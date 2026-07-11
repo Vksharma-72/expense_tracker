@@ -100,6 +100,97 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Date Filter                                                         */
+/* ------------------------------------------------------------------ */
+
+.date-filter-section {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+}
+
+.date-filter-form {
+    margin-bottom: 1rem;
+}
+
+.filter-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+}
+
+.filter-group input[type="date"] {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: inherit;
+    min-width: 160px;
+}
+
+.filter-group input[type="date"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.btn-filter {
+    padding: 0.6rem 1.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-filter:hover {
+    background: var(--accent-dark);
+}
+
+.btn-clear-filter {
+    padding: 0.6rem 1.5rem;
+    background: var(--paper-warm);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s ease;
+}
+
+.btn-clear-filter:hover {
+    background: var(--border-soft);
+}
+
+.filter-status {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ */
 /* Transaction History                                                 */
 /* ------------------------------------------------------------------ */
 
@@ -308,5 +399,18 @@
 
     .category-breakdown {
         padding: 1.5rem;
+    }
+
+    .filter-inputs {
+        flex-direction: column;
+    }
+
+    .filter-group input[type="date"] {
+        width: 100%;
+    }
+
+    .btn-filter,
+    .btn-clear-filter {
+        width: 100%;
     }
 }

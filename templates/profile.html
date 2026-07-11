@@ -34,7 +34,7 @@
             <div class="stat-meta">All time</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">Transactions</div>
+            <div class="stat-label">Transaction Count</div>
             <div class="stat-value">{{ transaction_count }}</div>
             <div class="stat-meta">Total expenses</div>
         </div>
@@ -43,6 +43,25 @@
             <div class="stat-value">{{ top_category }}</div>
             <div class="stat-meta">Most spent</div>
         </div>
+    </div>
+
+    <!-- Date Filter -->
+    <div class="date-filter-section">
+        <form method="GET" class="date-filter-form">
+            <div class="filter-inputs">
+                <div class="filter-group">
+                    <label for="date_from">From Date:</label>
+                    <input type="date" name="date_from" id="date_from" value="{{ date_from or '' }}">
+                </div>
+                <div class="filter-group">
+                    <label for="date_to">To Date:</label>
+                    <input type="date" name="date_to" id="date_to" value="{{ date_to or '' }}">
+                </div>
+                <button type="submit" class="btn-filter">Filter</button>
+                <a href="{{ url_for('profile') }}" class="btn-clear-filter">Clear</a>
+            </div>
+        </form>
+        <div class="filter-status">{{ filter_display }}</div>
     </div>
 
     <!-- Transaction History Table -->
