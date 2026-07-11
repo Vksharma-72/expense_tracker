@@ -69,6 +69,46 @@ def init_db():
     conn.close()
 
 
+def get_user_expenses(user_id):
+    # Subagent 1: Transaction history
+    conn = get_db()
+    expenses = conn.execute("SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC", (user_id,)).fetchall()
+    conn.close()
+    return expenses
+
+
+def get_expense_summary(user_id):
+    # Subagent 2: Summary stats
+    conn = get_db()
+
+    # Query 1: Get total spent and transaction count
+    result = conn.execute("SELECT SUM(amount), COUNT(*) FROM expenses WHERE user_id = ?", (user_id,)).fetchone()
+    total_spent = result[0] if result[0] is not None else 0.0
+    transaction_count = result[1]
+
+    # Query 2: Get top category
+    top_row = conn.execute("SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category ORDER BY total DESC LIMIT 1", (user_id,)).fetchone()
+    top_category = top_row["category"] if top_row else None
+
+    conn.close()
+    return {
+        "total_spent": total_spent,
+        "transaction_count": transaction_count,
+        "top_category": top_category,
+    }
+
+
+def get_category_breakdown(user_id):
+    # Subagent 3: Category breakdown
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category",
+        (user_id,)
+    ).fetchall()
+    conn.close()
+    return {row["category"]: row["total"] for row in rows}
+
+
 def seed_db():
     conn = get_db()
     existing = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]

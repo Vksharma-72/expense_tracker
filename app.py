@@ -1,10 +1,11 @@
 import argparse
 import os
+from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from database.db import get_db, init_db, seed_db, get_user_by_email, get_user_by_id, create_user
+from database.db import get_db, init_db, seed_db, get_user_by_email, get_user_by_id, create_user, get_user_expenses, get_expense_summary, get_category_breakdown
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
@@ -91,34 +92,48 @@ def logout():
     return redirect(url_for("landing"))
 
 
+def get_transaction_history_context(user_id):
+    # Subagent 1: Transaction history routes
+    transactions = get_user_expenses(user_id)
+    return {"transactions": transactions}
+
+
+def get_summary_stats_context(user_id):
+    # Subagent 2: Summary stats routes
+    user = get_user_by_id(user_id)
+    summary = get_expense_summary(user_id)
+
+    # Format member_since
+    if user and user["created_at"]:
+        created = datetime.strptime(user["created_at"], "%Y-%m-%d %H:%M:%S")
+        member_since = created.strftime("%B %Y")
+    else:
+        member_since = "Unknown"
+
+    return {
+        "member_since": member_since,
+        "total_spent": summary["total_spent"],
+        "transaction_count": summary["transaction_count"],
+        "top_category": summary["top_category"],
+    }
+
+
+def get_category_breakdown_context(user_id):
+    # Subagent 3: Category breakdown routes
+    breakdown = get_category_breakdown(user_id)
+    return {"categories": breakdown}
+
+
 @app.route("/profile")
 def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
-    ctx = {
-        "member_since": "July 2026",
-        "total_spent": 430.64,
-        "transaction_count": 8,
-        "top_category": "Shopping",
-        "transactions": [
-            {"date": "2026-07-09", "description": "Movie night", "category": "Entertainment", "amount": 60.00},
-            {"date": "2026-07-07", "description": "New shoes", "category": "Shopping", "amount": 150.00},
-            {"date": "2026-06-29", "description": "Pharmacy", "category": "Health", "amount": 25.00},
-            {"date": "2026-06-27", "description": "Electricity bill", "category": "Bills", "amount": 89.99},
-            {"date": "2026-06-25", "description": "Bus pass", "category": "Transport", "amount": 12.00},
-            {"date": "2026-06-23", "description": "Groceries", "category": "Food", "amount": 45.50},
-        ],
-        "categories": {
-            "Food": 45.50,
-            "Transport": 12.00,
-            "Bills": 89.99,
-            "Health": 25.00,
-            "Entertainment": 60.00,
-            "Shopping": 150.00,
-            "Other": 15.75,
-        },
-    }
+    user_id = session["user_id"]
+    ctx = {}
+    ctx.update(get_transaction_history_context(user_id))
+    ctx.update(get_summary_stats_context(user_id))
+    ctx.update(get_category_breakdown_context(user_id))
     return render_template("profile.html", **ctx)
 
 
