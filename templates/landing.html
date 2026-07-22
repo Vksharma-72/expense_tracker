@@ -80,6 +80,9 @@
 <section class="hero">
     <div class="hero-container">
         <div class="hero-inner">
+            {% if request.args.get('account_deleted') %}
+            <div class="auth-success">Account deleted successfully.</div>
+            {% endif %}
             <div class="hero-badge">
                 <span class="hero-badge-dot" aria-hidden="true"></span>
                 <span>Free to use · No credit card needed</span>

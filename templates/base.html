@@ -21,7 +21,11 @@
             <div class="nav-links">
                 {% if current_user %}
                 <a href="{{ url_for('profile') }}" class="nav-user">{{ current_user["name"] }}</a>
-                <a href="{{ url_for('logout') }}">Log out</a>
+                <a href="{{ url_for('settings') }}">Settings</a>
+                <form method="POST" action="{{ url_for('logout') }}" class="nav-inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="nav-link-button">Log out</button>
+                </form>
                 {% else %}
                 <a href="{{ url_for('login') }}">Sign in</a>
                 <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>

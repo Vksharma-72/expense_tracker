@@ -10,6 +10,19 @@
 
 <div class="profile-container">
 
+    {% if expense_added %}
+    <div class="auth-success">Expense added successfully.</div>
+    {% endif %}
+    {% if expense_added and filter_hidden %}
+    <div class="auth-success">Note: your current date filter may hide the newly added expense. Clear the filter to view it.</div>
+    {% endif %}
+    {% if expense_updated %}
+    <div class="auth-success">Expense updated successfully.</div>
+    {% endif %}
+    {% if expense_deleted %}
+    <div class="auth-success">Expense deleted successfully.</div>
+    {% endif %}
+
     <!-- User Info Card -->
     <div class="user-info-card">
         <div class="user-avatar">
@@ -66,41 +79,68 @@
 
     <!-- Transaction History Table -->
     <div class="transaction-history">
+        <div class="transaction-toolbar">
+            <div class="transaction-title">Transaction history</div>
+            <div class="transaction-actions-right">
+                <a class="btn-ghost" href="{{ url_for('export_expenses', date_from=date_from, date_to=date_to) }}">Export CSV</a>
+                <a class="btn-primary" href="{{ url_for('add_expense', next=request.full_path) }}">Add expense</a>
+            </div>
+        </div>
         <div class="transaction-header">
             <div>Date</div>
             <div>Description</div>
             <div>Category</div>
             <div>Amount</div>
+            <div>Actions</div>
         </div>
-        {% for txn in transactions %}
-        <div class="transaction-row">
-            <div class="transaction-date">{{ txn.date }}</div>
-            <div class="transaction-desc">{{ txn.description }}</div>
-            <div>
-                <span class="badge badge-{{ txn.category|lower }}">{{ txn.category }}</span>
+        {% if transactions %}
+            {% for txn in transactions %}
+            <div class="transaction-row">
+                <div class="transaction-date">{{ txn.date }}</div>
+                <div class="transaction-desc">{{ txn.description or "—" }}</div>
+                <div>
+                    <span class="badge badge-{{ txn.category|lower }}">{{ txn.category }}</span>
+                </div>
+                <div class="transaction-amount">₹{{ "%.2f"|format(txn.amount) }}</div>
+                <div class="transaction-actions">
+                    <a class="btn-link" href="{{ url_for('edit_expense', id=txn.id, next=request.full_path) }}">Edit</a>
+                    <form method="POST" action="{{ url_for('delete_expense_route', id=txn.id) }}" class="inline-form"
+                          onsubmit="return confirm('Delete this expense?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="hidden" name="next" value="{{ request.full_path }}">
+                        <button type="submit" class="btn-link btn-link-danger">Delete</button>
+                    </form>
+                </div>
             </div>
-            <div class="transaction-amount">₹{{ "%.2f"|format(txn.amount) }}</div>
-        </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="transaction-empty">
+                No expenses yet. Add your first one to see your dashboard update.
+            </div>
+        {% endif %}
     </div>
 
     <!-- Category Breakdown -->
     <div class="category-breakdown">
         <div class="category-breakdown-title">Spending by Category</div>
         <div class="category-list">
-            {% set max_amount = categories.values() | max %}
-            {% for category, amount in categories.items() | sort %}
-                {% set percentage = (amount / max_amount * 100) | int %}
-                <div class="category-item">
-                    <div class="category-row">
-                        <div class="category-name">{{ category }}</div>
-                        <div class="category-amount">₹{{ "%.2f"|format(amount) }}</div>
+            {% if categories %}
+                {% set max_amount = categories.values() | max %}
+                {% for category, amount in categories.items() | sort %}
+                    {% set percentage = (amount / max_amount * 100) | int %}
+                    <div class="category-item">
+                        <div class="category-row">
+                            <div class="category-name">{{ category }}</div>
+                            <div class="category-amount">₹{{ "%.2f"|format(amount) }}</div>
+                        </div>
+                        <div class="category-bar-track">
+                            <div class="category-bar-fill" style="width: {{ percentage }}%"></div>
+                        </div>
                     </div>
-                    <div class="category-bar-track">
-                        <div class="category-bar-fill" style="width: {{ percentage }}%"></div>
-                    </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                <div class="category-empty">No category data yet.</div>
+            {% endif %}
         </div>
     </div>
 

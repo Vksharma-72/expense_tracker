@@ -14,6 +14,7 @@ def app():
     # Monkeypatch database.db.DB_PATH before importing app
     import database.db as db_module
     db_module.DB_PATH = temp_db
+    db_module.init_db()
 
     # Now import the app (triggers init_db() and seed_db() against temp DB)
     import app as app_module

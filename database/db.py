@@ -8,6 +8,9 @@ DB_PATH = Path(__file__).resolve().parent.parent / "expense_tracker.db"
 
 CATEGORIES = ["Food", "Transport", "Bills", "Health", "Entertainment", "Shopping", "Other"]
 
+def get_categories():
+    return list(CATEGORIES)
+
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -183,6 +186,46 @@ def get_category_breakdown_filtered(user_id, date_from=None, date_to=None):
     return {row["category"]: row["total"] for row in rows}
 
 
+def create_expense(user_id, amount, category, date_str, description=""):
+    conn = get_db()
+    cursor = conn.execute(
+        "INSERT INTO expenses (user_id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)",
+        (user_id, amount, category, date_str, description),
+    )
+    expense_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return expense_id
+
+
+def get_expense_by_id(expense_id):
+    conn = get_db()
+    expense = conn.execute("SELECT * FROM expenses WHERE id = ?", (expense_id,)).fetchone()
+    conn.close()
+    return expense
+
+
+def update_expense(expense_id, user_id, amount, category, date_str, description=""):
+    conn = get_db()
+    cur = conn.execute(
+        "UPDATE expenses SET amount = ?, category = ?, date = ?, description = ? WHERE id = ? AND user_id = ?",
+        (amount, category, date_str, description, expense_id, user_id),
+    )
+    conn.commit()
+    changed = cur.rowcount
+    conn.close()
+    return changed > 0
+
+
+def delete_expense(expense_id, user_id):
+    conn = get_db()
+    cur = conn.execute("DELETE FROM expenses WHERE id = ? AND user_id = ?", (expense_id, user_id))
+    conn.commit()
+    changed = cur.rowcount
+    conn.close()
+    return changed > 0
+
+
 def seed_db():
     conn = get_db()
     existing = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
@@ -218,3 +261,25 @@ def seed_db():
 
     conn.commit()
     conn.close()
+
+
+def update_user_password(user_id, password_hash):
+    conn = get_db()
+    cur = conn.execute(
+        "UPDATE users SET password_hash = ? WHERE id = ?",
+        (password_hash, user_id),
+    )
+    conn.commit()
+    changed = cur.rowcount
+    conn.close()
+    return changed > 0
+
+
+def delete_user(user_id):
+    conn = get_db()
+    conn.execute("DELETE FROM expenses WHERE user_id = ?", (user_id,))
+    cur = conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    conn.commit()
+    changed = cur.rowcount
+    conn.close()
+    return changed > 0

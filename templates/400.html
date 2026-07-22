@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Bad request — Spendly{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1 class="auth-title">Bad request</h1>
+            <p class="auth-subtitle">
+                If you just submitted a form, refresh the page and try again.
+            </p>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-error">
+                Your request could not be processed. This can happen if the session expired or the form was opened in an old tab.
+            </div>
+
+            <p class="auth-switch">
+                <a href="{{ url_for('landing') }}">Go to home</a>
+                ·
+                {% if current_user %}
+                <a href="{{ url_for('profile') }}">Back to dashboard</a>
+                {% else %}
+                <a href="{{ url_for('login') }}">Sign in</a>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

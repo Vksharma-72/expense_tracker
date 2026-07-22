@@ -396,6 +396,24 @@ a { color: inherit; text-decoration: none; }
     color: var(--ink);
 }
 
+.nav-inline-form {
+    display: inline;
+}
+
+.nav-link-button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    padding: 0;
+}
+
+.nav-link-button:hover {
+    color: var(--accent);
+}
+
 /* ------------------------------------------------------------------ */
 /* Features section                                                    */
 /* ------------------------------------------------------------------ */

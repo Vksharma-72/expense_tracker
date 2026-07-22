@@ -3,7 +3,10 @@
     "allow": [
       "WebFetch",
       "WebSearch",
-      "Bash"
+      "Bash",
+      "mcp__sqlite__list_tables",
+      "mcp__sqlite__read_query",
+      "mcp__plugin_figma_figma__get_screenshot"
     ]
   }
 }

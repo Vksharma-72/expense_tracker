@@ -16,11 +16,15 @@
             {% if request.args.get('registered') %}
             <div class="auth-success">Account created — please sign in.</div>
             {% endif %}
+            {% if request.args.get('password_updated') %}
+            <div class="auth-success">Password updated — please sign in again.</div>
+            {% endif %}
             {% if error %}
             <div class="auth-error">{{ error }}</div>
             {% endif %}
 
             <form method="POST" action="{{ url_for('login') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="form-group">
                     <label for="email">Email address</label>
                     <input type="email" id="email" name="email"

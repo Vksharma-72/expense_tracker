@@ -201,11 +201,34 @@
     overflow: hidden;
 }
 
+.transaction-toolbar {
+    padding: 1.25rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.transaction-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.transaction-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
 .transaction-header {
     background: var(--paper-warm);
     padding: 1.25rem 1.75rem;
     display: grid;
-    grid-template-columns: 120px 1fr 140px 100px;
+    grid-template-columns: 120px 1fr 140px 100px 140px;
     gap: 1.5rem;
     font-weight: 600;
     font-size: 0.9rem;
@@ -221,7 +244,7 @@
 .transaction-row {
     padding: 1.25rem 1.75rem;
     display: grid;
-    grid-template-columns: 120px 1fr 140px 100px;
+    grid-template-columns: 120px 1fr 140px 100px 140px;
     gap: 1.5rem;
     align-items: center;
     border-bottom: 1px solid var(--border-soft);
@@ -233,6 +256,12 @@
 
 .transaction-row:hover {
     background: var(--paper-warm);
+}
+
+.transaction-empty {
+    padding: 1.5rem 1.75rem;
+    color: var(--ink-muted);
+    font-size: 0.95rem;
 }
 
 .transaction-date {
@@ -253,6 +282,32 @@
     font-weight: 600;
     color: var(--ink);
 }
+
+.transaction-actions {
+    display: inline-flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.inline-form { display: inline; }
+
+.btn-link {
+    appearance: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-link:hover { text-decoration: underline; }
+
+.btn-link-danger { color: var(--danger); }
 
 /* ------------------------------------------------------------------ */
 /* Category Badges                                                     */
@@ -326,6 +381,11 @@
     gap: 1.25rem;
 }
 
+.category-empty {
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+}
+
 .category-item {
     display: flex;
     flex-direction: column;
@@ -391,6 +451,13 @@
     .transaction-row {
         grid-template-columns: 80px 1fr 100px;
         gap: 1rem;
+    }
+
+    .transaction-header div:nth-child(4),
+    .transaction-row div:nth-child(4),
+    .transaction-header div:nth-child(5),
+    .transaction-row div:nth-child(5) {
+        display: none;
     }
 
     .summary-stats {

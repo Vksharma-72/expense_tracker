@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — Spendly{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="auth-section">
+    <div class="auth-container">
+
+        <div class="auth-header">
+            <h1 class="auth-title">Account settings</h1>
+            <p class="auth-subtitle">Manage your password and account</p>
+        </div>
+
+        <div class="settings-grid">
+            <div class="auth-card">
+                <div class="settings-card-title">Change password</div>
+
+                {% if password_updated %}
+                <div class="auth-success">Password updated.</div>
+                {% endif %}
+                {% if error %}
+                <div class="auth-error">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('settings') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <div class="form-group">
+                        <label for="current_password">Current password</label>
+                        <input type="password" id="current_password" name="current_password"
+                               class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">New password</label>
+                        <input type="password" id="new_password" name="new_password"
+                               class="form-input" minlength="8" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm new password</label>
+                        <input type="password" id="confirm_password" name="confirm_password"
+                               class="form-input" minlength="8" required>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Update password</button>
+                </form>
+            </div>
+
+            <div class="auth-card">
+                <div class="settings-card-title settings-danger-title">Delete account</div>
+
+                {% if delete_error %}
+                <div class="auth-error">Password is incorrect. Account not deleted.</div>
+                {% endif %}
+
+                <p class="settings-danger-copy">
+                    This permanently deletes your account and all expenses. This cannot be undone.
+                </p>
+
+                <form method="POST" action="{{ url_for('delete_account') }}"
+                      onsubmit="return confirm('Delete your account and all expenses? This cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <div class="form-group">
+                        <label for="delete_password">Confirm password</label>
+                        <input type="password" id="delete_password" name="password"
+                               class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn-danger">Delete account</button>
+                </form>
+            </div>
+        </div>
+
+        <p class="auth-switch">
+            <a href="{{ url_for('profile') }}">Back to dashboard</a>
+        </p>
+
+    </div>
+</section>
+
+{% endblock %}
+
