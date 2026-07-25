@@ -2,9 +2,11 @@
 
 A lightweight, secure personal finance tracking app built with Flask and SQLite. Track your daily expenses across categories like Food, Transport, Bills, Health, Entertainment, Shopping, and More — all backed by a simple, reliable database.
 
+This project was developed efficiently using **Claude Code**, leveraging its agentic coding capabilities to streamline implementation while maintaining high code quality and security standards.
+
 ---
 
-## Features Implemented
+## ✨ Features Implemented
 
 ### Authentication & Account Management
 - **User Registration** (`/register`) — create accounts with name, email, password
@@ -42,7 +44,7 @@ A lightweight, secure personal finance tracking app built with Flask and SQLite.
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 | Layer             | Technology                        | Note                                       |
 |-------------------|-----------------------------------|--------------------------------------------|
@@ -81,25 +83,24 @@ A lightweight, secure personal finance tracking app built with Flask and SQLite.
 
 ---
 
-## Running Locally
+## ▶️ Running Locally
 
 ```bash
 # Setup virtualenv & install dependencies
 python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt -q
-# Activate the running Flask server (port 5001) python src/app.py
 # Activate the running Flask server (port 5001) python app.py
 
 # Run all tests
 pytest
 ```
 
-## Test Fixtures Setup (`conftest.py`)
+## 🧪 Test Fixtures Setup (`conftest.py`)
 - `client` — pre-login demo superuser (`demo@spendly.com`)
 - `login_as(email, password)` — login helper
 - `make_user(name, email, password)` — creates isolated user in DB
 - `sample_expenses(amount, date_delta, category, description="Groceries")` — adds N sample rows (1..N) to a test user
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 spendly/
@@ -115,9 +116,53 @@ spendly/
 │   ├── css/
 │   │   ├── style.css            # Global styles + features + auth + hero + CTA sections
 │   │   └── profile.css          # Dashboard & user-info styling (+ stat-value:4rem etc.)
-│   ╗── js/main.js (vanilla JS)
+│   └── js/
+│       └── main.js              # Vanilla JS only
 
 # Conftest.py for test setup
 .venv/
 pytest cache directories
+```
 
+---
+
+## 🤖 Development with Claude Code
+
+This project was built using Claude Code's agentic coding capabilities, which significantly accelerated development while ensuring adherence to best practices. Key Claude Code tools and methodologies utilized:
+
+### 🔧 Core Claude Code Features
+- **Skills**: Pre-built workflows for common development tasks including:
+  - `/test-feature`: Automated test generation and execution
+  - `/code-review-feature`: Parallel security and quality code reviews
+  - `/create-spec`: Feature specification creation and branching
+  - `/seed-user` and `/seed-expense`: Database seeding for testing
+
+- **Slash Commands**: Productivity shortcuts that automated repetitive processes:
+  - `/run`: Launch and test the application in real-time
+  - `/loop`: Recurring task execution for monitoring and polling
+  - Agents Observe dashboard for monitoring subagent activities
+
+- **Plugins**: Extended functionality through integrations:
+  - Figma plugin for design-to-code workflows
+  - MCP (Model Context Protocol) servers for secure tool and data source access
+
+### 📚 Documentation & Knowledge Management
+- **Markdown Files**: Structured documentation and spec files for clear feature definition and tracking
+- **Memory Management**: Persistent storage of project context and learned patterns across sessions using Claude Code's memory system
+- **Context Window Optimization**: Techniques to manage token usage and maintain relevant context during extended development sessions
+
+### 👨‍💻 Agentic Coding Approach
+- Utilized specialized subagents for parallelized development:
+  - **Explore**: Broad codebase searches and investigations
+  - **Plan**: Implementation strategy design and architectural planning
+  - **Test-writer**: Spec-based test generation (not implementation-based)
+  - **Test-runner**: Test execution and analysis
+  - **Quality-reviewer** and **Security-reviewer**: Parallel code review processes
+
+### ⚡ Efficiency Gains
+- **Tokens Reduction**: Smart context management to minimize unnecessary token usage
+- **Hooks**: Custom automation triggered by specific development lifecycle events
+- **MCP Servers**: Secure access to external tools and data sources through Model Context Protocol
+- **Iterative Development**: Rapid prototyping and feedback loops using Claude Code's conversational interface
+
+These Claude Code capabilities enabled efficient, high-quality development of Spendly while learning advanced agentic coding techniques including skills, slash-commands, plugins, markdown documentation, hooks, MCP servers, memory management, context optimization, and token reduction strategies.
